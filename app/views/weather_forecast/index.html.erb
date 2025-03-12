@@ -1,0 +1,10 @@
+<h1>Weather Forecasts</h1>
+<%= form_with url: "/weather_forecast", method: :get do |form| %>
+  <%= form.label :address, "Search for:" %>
+  <%= form.search_field :address%>
+  <%= form.submit "Search" %>
+<% end %>
+
+<%= render "weather_forecast/show", forecasts: @forecasts %>
+
+
