@@ -1,3 +1,23 @@
 <% if @forecasts %>
-  <p><%= @forecasts %></p>
+  <div>
+    <h2>Current Temperature:
+      <strong><%= @forecasts[:current_temperature] %></strong></h2>
+  </div>
+  <div>
+    <h2>Forecasts</h2>
+    <table class="table table-striped table-hover">
+      <tr>
+        <th>Date</th>
+        <th>Minimum Temperature</th>
+        <th>Maximum Temperature</th>
+      </tr>
+      <% @forecasts[:forecast_temperatures].each do |date, forecast| %>
+        <tr>
+          <td><%= date %></td>
+          <td><%= forecast[:minimum_temperature] %></td>
+          <td><%= forecast[:maximum_temperature] %></td>
+        </tr>
+      <% end %>
+    </table>
+  </div>
 <% end %>

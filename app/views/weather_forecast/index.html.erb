@@ -1,10 +1,15 @@
 <h1>Weather Forecasts</h1>
-<%= form_with url: "/weather_forecast", method: :get do |form| %>
-  <%= form.label :address, "Search for:" %>
-  <%= form.search_field :address%>
-  <%= form.submit "Search" %>
-<% end %>
-
+<div class="container">
+  <%= form_with url: "/weather_forecast", method: :get do |form| %>
+    <div class="row-md-3">
+      <div class="col-12">
+        <%= form.label :address, "Address:", class: "form-label" %>
+        <%= form.search_field :address, class: "form-control" %>
+      </div>
+      <div class="col-12">
+        <%= form.submit "Get Forecasts", class: "btn btn-primary" %>
+      </div>
+    </div>
+  <% end %>
+</div>
 <%= render "weather_forecast/show", forecasts: @forecasts %>
-
-
