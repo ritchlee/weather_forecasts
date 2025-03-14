@@ -21,6 +21,12 @@ This repository is intended for local development and testing. Plans for product
 
 ---
 
+## Demo
+
+https://github.com/user-attachments/assets/3c0fe333-5c1f-4845-a4a3-9e19729a085d
+
+---
+
 ## Local Development Setup
 
 ### Prerequisites
