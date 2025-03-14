@@ -44,38 +44,50 @@ class WeatherForecastService
 
   # uses Open-Meteo to fetch weather data by latitude and longitude
   def fetch_forecasts(latitude:, longitude:, postal_code:)
-    rest_client = Faraday.new(url: OPENMETEO_API_URL)
+    # cache by postal_code for 30 minutes to avoid this API call
 
-    # TODO: these parameters can be selected by user and dynamically added as required
-    # ex: https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&daily=temperature_2m_max,temperature_2m_min&current=temperature_2m&temperature_unit=fahrenheit
-    response = rest_client.get('forecast',
-                               {
-                                 latitude: latitude,
-                                 longitude: longitude,
-                                 temperature_unit: 'fahrenheit',
-                                 current: 'temperature_2m',
-                                 daily: %w[temperature_2m_max temperature_2m_min]
-                               })
+    cached_forecasts = Rails.cache.read(postal_code)
 
-    response_body = JSON.parse(response.body)
+    if cached_forecasts
+      cached_forecasts[:cached] = true
+      cached_forecasts
+    else
+      Rails.cache.fetch(postal_code, expires_in: 30.minutes) do
+        rest_client = Faraday.new(url: OPENMETEO_API_URL)
 
-    temperature_unit = response_body['current_units']['temperature_2m']
+        # TODO: these parameters can be selected by user and dynamically added as required
+        # ex: https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&daily=temperature_2m_max,temperature_2m_min&current=temperature_2m&temperature_unit=fahrenheit
+        response = rest_client.get('forecast',
+                                   {
+                                     latitude: latitude,
+                                     longitude: longitude,
+                                     temperature_unit: 'fahrenheit',
+                                     current: 'temperature_2m',
+                                     daily: %w[temperature_2m_max temperature_2m_min]
+                                   })
 
-    current_temperature = response_body['current']['temperature_2m']
-    forecast_temperatures = response_body['daily']
+        response_body = JSON.parse(response.body)
 
-    forecast_data = {}
+        temperature_unit = response_body['current_units']['temperature_2m']
 
-    forecast_temperatures['time'].each_with_index do |date, index|
-      forecast_data[date] = {
-        minimum_temperature: (forecast_temperatures['temperature_2m_min'][index].to_s + temperature_unit).to_s,
-        maximum_temperature: (forecast_temperatures['temperature_2m_max'][index].to_s + temperature_unit).to_s
-      }
+        current_temperature = response_body['current']['temperature_2m']
+        forecast_temperatures = response_body['daily']
+
+        forecast_data = {}
+
+        forecast_temperatures['time'].each_with_index do |date, index|
+          forecast_data[date] = {
+            minimum_temperature: (forecast_temperatures['temperature_2m_min'][index].to_s + temperature_unit).to_s,
+            maximum_temperature: (forecast_temperatures['temperature_2m_max'][index].to_s + temperature_unit).to_s
+          }
+        end
+
+        {
+          cached: false,
+          current_temperature: (current_temperature.to_s + temperature_unit).to_s,
+          forecast_temperatures: forecast_data
+        }
+      end
     end
-
-    {
-      current_temperature: (current_temperature.to_s + temperature_unit).to_s,
-      forecast_temperatures: forecast_data
-    }
   end
 end
