@@ -12,4 +12,5 @@
     </div>
   <% end %>
 </div>
-<%= render "weather_forecast/show", forecasts: @forecasts %>
+
+<%= render "weather_forecast/show", forecasts: @forecasts if @forecasts.present? %>
