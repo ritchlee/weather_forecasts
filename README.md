@@ -1,80 +1,138 @@
-# README
+# Weather Forecast Application
 
-## About
+## Overview
 
-This project is a demo application to fetch weather forecasts given an address, and caching the results by zip code value for 30 minutes. It is built with Ruby-on-Rails, its built-in cache store, and view rendered via ERB templates.
+This web application provides the current temperature and forecasted temperatures for a user-provided address. It utilizes caching to store weather data for up to 30 minutes, ensuring efficiency and reducing API calls. If a previously requested zip code exists in the cache, the stored data is returned; otherwise, new data is fetched from third-party APIs and cached for future use.
 
-There are two 3rd-party APIs used:
+Built with **Ruby on Rails**, this application leverages Rails' built-in caching mechanism and renders views using ERB templates.
 
-- [Google Maps Platform - Geocoding API](https://developers.google.com/maps/documentation/geocoding)
+### Third-Party APIs Used
 
-  - to determine zip codes for caching and latitude/longitude given an address
+- **[Google Maps Geocoding API](https://developers.google.com/maps/documentation/geocoding)**
 
-- [Free Weather API](https://open-meteo.com/)
+  - Converts user-provided addresses into zip codes (for caching) and latitude/longitude coordinates (for weather lookup).
 
-  - to fetch weather data by latitude/longitude
+- **[Open-Meteo Free Weather API](https://open-meteo.com/)**
+  - Retrieves weather data based on latitude and longitude.
 
-This repo is currently intended for local development/testing, and future enhancements for a production-ready deployment are noted below.
+### Current Status
 
-## Local Environment Setup
+This repository is intended for local development and testing. Plans for production readiness are outlined in the **Future Improvements** section below.
 
-This configuration is based on development and testing on MacOS/ARM, using Ruby 3.3.4
+---
 
-### Debug / Run
+## Local Development Setup
 
-1. Clone this repository and `cd` into the directory for the following steps
+### Prerequisites
 
-2. `bundle install`
+- **Operating System**: macOS (ARM)
+- **Ruby Version**: 3.3.4
 
-3. `rails dev:cache`
+### Setup Instructions
 
-4. `rails server`
+1. Clone the repository and navigate into the project directory:
 
-5. [Development Site](http://localhost:3000)
+   ```sh
+   git clone git@github.com:ritchlee/weather_forecasts.git
+   cd weather_forecasts
+   ```
 
-### Test
+2. Install dependencies:
 
-`rspec` (from repository root)
+   ```sh
+   bundle install
+   ```
 
-## Current Design
+3. Enable Rails caching:
 
-The main components of this application include a Controller, Service, and a View Template with an optional Partial View Template to show search results. Each of these are intended to do the following:
+   ```sh
+   rails dev:cache
+   ```
 
-### Controller
+4. Start the Rails server:
 
-    - validate the incoming query and/or request body parameters
-    - avoid data transformations if possible, or have consistent transformations across all actions when necessary
-    - avoid business logic and delgate to services
-    - delegate the response to a view template or specific data format(s) (i.e. JSON, XML, PDF, etc.)
-    - supported actions
-      - `#index`: display the form for a user to enter an address for weather forecast results
-      - `#show`: call services to get forecast data, and then display the `#index` template above along with a partial template to show the current temperature and a table of forecasts (daily min/max temperatures)
+   ```sh
+   rails server
+   ```
 
-### Service
+5. Open the application in your browser:  
+   [http://localhost:3000](http://localhost:3000)
 
-    - coordinate busines logic to serve weather forecast data using input address from the controller
-        - APIs
-            - geolocation: use input address to get a standardized zip code, latitude and longitude
-            - weather data: use latitude and longitude from geolocation response (from above) as input to get data for this location
-        - Caching
-            - cache weather data, using zip code from geolocation as the key, with an expiration of 30 minutes
-    - the geolocation API will always be called to parse the input address for its zip code
-        - if the zip code exists in the cache, return this data
-        - otherwise, fetch from the weather data API
+### Running Tests
 
-### View (ERB)
+Execute the following command from the project root:
 
-    - the index view shows the search form for a user to enter an address to search for weather data
-    - the show view is included as a partial view to the index view to display the search results
+```sh
+rspec
+```
 
-## Considerations & Future Improvements
+---
 
-    - *urgent*: api key to an API is hardcoded within code in this repo - update documentation to guide developers to get individual key(s), use `.env`, `.gitignore`, and secrets management capibilities for source-control management, CI/CD, deployment processes
-    - improve validation/security for inputs within controller (i.e. code injections, fail faster than first API call)
-    - refactor service class to use command pattern for each of the 2 API calls
-    - design adapter for each of the 2 API calls to use alternative APIs, ideally configurable
-        - each API would still require customization/transformation for request parameters / request bodies
-    - separate concerns and data dependencies within Controller / Service / View
-        - standardize / create a data interface (DTO/VO) from controller <-> service
-        - standardize / create a data interface (REST) from controller <-> view
-        - use ReactJS or any other framework than ERB templates for view
+## Application Design
+
+This application follows a structured architecture, with key components including **Controllers**, **Services**, and **Views**.
+
+### **Controller**
+
+- Validates incoming request parameters.
+- Minimizes data transformations to ensure consistency across actions.
+- Delegates business logic to services.
+- Manages responses for different formats (e.g., JSON, XML, ERB templates).
+
+#### Supported Actions
+
+| Action   | Description                                                                                                           |
+| -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `#index` | Displays a form where users can enter an address to retrieve weather data.                                            |
+| `#show`  | Calls the service layer to fetch weather data, then displays results within the `#index` template via a partial view. |
+
+### **Service**
+
+- Handles business logic for weather forecasting.
+- Manages API calls:
+  - **Geolocation API**: Retrieves standardized zip codes, latitude, and longitude.
+  - **Weather API**: Uses latitude and longitude to fetch weather data.
+- Implements caching:
+  - Uses the zip code as the cache key.
+  - Stores weather data for 30 minutes to optimize performance.
+- Always calls the geolocation API first:
+  - If the zip code is in cache, returns cached data.
+  - Otherwise, fetches new data from the weather API.
+
+### **View (ERB Templates)**
+
+- **Index View**: Contains a search form for users to enter an address.
+- **Show View (Partial Template)**: Displays search results, including current temperature and a forecast table.
+
+---
+
+## Future Improvements & Considerations
+
+### **Urgent**
+
+- **Secure API Keys**:
+  - Currently, an API key is hardcoded in the codebase.
+  - Implement `.env` for storing API keys securely.
+  - Use `.gitignore` to prevent secrets from being committed.
+  - Follow best practices for secrets management in CI/CD pipelines.
+
+### **Enhancements**
+
+- **Improve Input Validation & Security**:
+  - Strengthen input sanitization to prevent code injection and other security risks.
+  - Implement early validation to fail fast before making API calls.
+- **Refactor Service Layer**:
+  - Use a **Command Pattern** to modularize API calls.
+- **Design API Adapters**:
+  - Create an abstraction layer to support alternative geolocation/weather APIs.
+  - Allow API configuration to be set dynamically.
+- **Improve Separation of Concerns**:
+  - Standardize data interfaces between Controller, Service, and View.
+  - Implement **DTOs (Data Transfer Objects)** for structured data handling.
+  - Consider switching from ERB templates to a modern frontend framework (e.g., **React.js**).
+- **Support Dynamic Queries**:
+  - Implement parameters on view and service for temperature units, other weather data besides temperature, forecast intervals, etc.
+  - Currently supports only Fahrenheit, and temperatures for weather data, fixed at 7-days of forecasts
+    **Improve Error Handling**:
+  - Return proper response for bad requests (input validation)
+  - Raise API request/response failures and propogate to controller for error messaging
