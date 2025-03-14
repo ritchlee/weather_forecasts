@@ -14,8 +14,8 @@ RSpec.describe 'weather_forecast/index', type: :view do
 
     it 'renders the search form' do
       expect(rendered).to have_selector('form[action="/weather_forecast"][method="get"]')
-      expect(rendered).to have_field('Address:', type: 'search')
-      expect(rendered).to have_button('Get Forecasts')
+      expect(rendered).to have_field('Enter an Address', type: 'search')
+      expect(rendered).to have_button('Search')
     end
   end
 
@@ -34,9 +34,10 @@ RSpec.describe 'weather_forecast/index', type: :view do
     end
 
     it 'renders the show partial' do
-      expect(rendered).to have_selector('h2', text: 'Current Temperature:')
-      expect(rendered).to have_selector('strong', text: '72')
+      expect(rendered).to have_selector('h2.h5', text: 'Current Temperature')
+      expect(rendered).to have_selector('div.display-4', text: '72')
       expect(rendered).to have_selector('table.table')
+      expect(rendered).to have_selector('div.alert.alert-info', text: /Cached Values:/)
     end
   end
 

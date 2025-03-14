@@ -1,16 +1,29 @@
-<h1>Weather Forecasts</h1>
-<div class="container">
-  <%= form_with url: "/weather_forecast", method: :get do |form| %>
-    <div class="row-md-3">
-      <div class="col-12">
-        <%= form.label :address, "Address:", class: "form-label" %>
-        <%= form.search_field :address, class: "form-control" %>
-      </div>
-      <div class="col-12">
-        <%= form.submit "Get Forecasts", class: "btn btn-primary" %>
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h1 class="h4 mb-0">Weather Forecasts</h1>
+        </div>
+
+        <div class="card-body">
+          <%= form_with url: "/weather_forecast", method: :get, class: "mb-4" do |form| %>
+            <div class="form-group">
+              <%= form.label :address, "Enter an Address:", class: "h5 form-label" %>
+              <div class="input-group">
+                <%= form.search_field :address,
+                                  class: "form-control",
+                                  placeholder: "e.g. 123 Main St Springfield, OH 12345" %>
+                <div class="input-group-append">
+                  <%= form.submit "Search", class: "btn btn-primary" %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+
+          <%= render "weather_forecast/show", forecasts: @forecasts if @forecasts.present? %>
+        </div>
       </div>
     </div>
-  <% end %>
+  </div>
 </div>
-
-<%= render "weather_forecast/show", forecasts: @forecasts if @forecasts.present? %>

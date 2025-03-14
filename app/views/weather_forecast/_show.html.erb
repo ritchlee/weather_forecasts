@@ -1,25 +1,46 @@
 <% if @forecasts %>
   <div>
-    <h2>Current Temperature:
-      <strong><%= @forecasts[:current_temperature] %></strong></h2>
-  </div>
-  <div>
-    <h2>Forecasts</h2>
-    <p><strong>Cached:
-        <%= @forecasts[:cached] %></strong></p>
-    <table class="table table-striped table-hover">
-      <tr>
-        <th>Date</th>
-        <th>Minimum Temperature</th>
-        <th>Maximum Temperature</th>
-      </tr>
-      <% @forecasts[:forecast_temperatures].each do |date, forecast| %>
-        <tr>
-          <td><%= date %></td>
-          <td><%= forecast[:minimum_temperature] %></td>
-          <td><%= forecast[:maximum_temperature] %></td>
-        </tr>
+    <div class="mb-4 p-3 bg-light rounded">
+      <h2 class="h5">Current Temperature</h2>
+      <div class="display-4">
+        <%= @forecasts[:current_temperature] %>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="h5 mb-3">Forecasts</h2>
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <thead class="thead-light">
+            <tr>
+              <th>Date</th>
+              <th>Min Temp</th>
+              <th>Max Temp</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @forecasts[:forecast_temperatures].each do |date, forecast| %>
+              <tr>
+                <td><%= date %></td>
+                <td><%= forecast[:minimum_temperature] %></td>
+                <td><%= forecast[:maximum_temperature] %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="alert alert-info d-flex align-items-center">
+      <strong>Cached Values:</strong>
+      <% if @forecasts[:cached] %>
+        <span class="ms-2 text-success">
+          <i class="bi bi-check-circle-fill"></i>
+        </span>
+      <% else %>
+        <span class="ms-2 text-danger">
+          <i class="bi bi-x-circle-fill"></i>
+        </span>
       <% end %>
-    </table>
+    </div>
   </div>
 <% end %>

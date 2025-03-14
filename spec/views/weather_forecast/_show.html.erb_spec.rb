@@ -19,11 +19,15 @@ RSpec.describe 'weather_forecast/_show', type: :view do
   end
 
   it 'displays the current temperature' do
-    expect(rendered).to include('<strong>72</strong>')
+    expect(rendered).to have_selector('div.display-4', text: '72')
   end
 
-  it 'displays the forecast temperatures' do
-    expect(rendered).to include('60')
-    expect(rendered).to include('75')
+  it 'displays the forecast temperatures in a table' do
+    expect(rendered).to have_selector('table.table tbody tr td', text: '60')
+    expect(rendered).to have_selector('table.table tbody tr td', text: '75')
+  end
+
+  it 'shows the cache status in an alert' do
+    expect(rendered).to have_selector('div.alert.alert-info', text: /Cached Values:/)
   end
 end
